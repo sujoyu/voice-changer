@@ -20,49 +20,27 @@ document.addEventListener('DOMContentLoaded', () => {
       const context = new AudioContext()
       const source = context.createMediaStreamSource(stream)
       const formant4Filter = context.createBiquadFilter()
-      // const formant3Filter = context.createBiquadFilter()
-      // const pitchFilter = PitchShift(context)
-      const pitchFilter = createPitchFilter(context, 1.7, 0.5)
-      const pitchFilter2 = createPitchFilter(context, 1.7, 0.5)
-      const lowPitchFilter = createPitchFilter(context, 1.65, 0.4)
-      const lowPitchFilter2 = createPitchFilter(context, 1.6, 0.4)
+      const pitchFilter = createPitchFilter(context, 1.4, 0.5)
+      const pitchFilter2 = createPitchFilter(context, 1.4, 0.5)
       const gain = context.createGain()
-      // const formantMerger = context.createChannelMerger(2);
-      const merger = context.createChannelMerger(4);
+      const merger = context.createChannelMerger(2);
       const dest = context.createMediaStreamDestination()
 
       formant4Filter.type = 'bandpass'
       formant4Filter.frequency.setValueAtTime(3000, context.currentTime)
-      formant4Filter.Q.setValueAtTime(50, context.currentTime)
+      formant4Filter.Q.setValueAtTime(20, context.currentTime)
 
-      // formant3Filter.type = 'bandpass'
-      // formant3Filter.frequency.setValueAtTime(2000, context.currentTime)
-      // formant3Filter.Q.setValueAtTime(20, context.currentTime)
-
-      // lowPitchFilter.transpose = 20
-      // lowPitchFilter.wet.value = 0
-      // lowPitchFilter.dry.value = 1
-
-      gain.gain.setValueAtTime(30, context.currentTime)
+      gain.gain.setValueAtTime(85, context.currentTime)
 
       source.connect(formant4Filter)
       source.connect(pitchFilter)
-      source.connect(lowPitchFilter)
-      source.connect(lowPitchFilter2)
-      lowPitchFilter.connect(merger)
-      lowPitchFilter2.connect(merger)
       pitchFilter.connect(merger)
-      // pitchFilter.connect(formant3Filter)
-      formant4Filter.connect(lowPitchFilter)
+      formant4Filter.connect(pitchFilter2)
       pitchFilter2.connect(gain)
-      // formant3Filter.connect(formantMerger)
-      // formantMerger.connect(gain)
       gain.connect(merger)
       merger.connect(dest)
-      // gain.connect(dest)
 
-      const options = { mimeType: 'video/webm;codecs=vp9' }
-      const recordedChunks = []
+      const options = { mimeType: 'audio/webm' }
       mediaRecorder = new MediaRecorder(dest.stream, options)
 
       mediaRecorder.addEventListener('dataavailable', (ev) => {
